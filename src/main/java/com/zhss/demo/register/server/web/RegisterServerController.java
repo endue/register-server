@@ -1,6 +1,7 @@
 package com.zhss.demo.register.server.web;
 
 import com.zhss.demo.register.server.ServiceRegistry;
+import com.zhss.demo.register.server.cluster.PeersReplicateBatch;
 import com.zhss.demo.register.server.cluster.PeersReplicator;
 import com.zhss.demo.register.server.core.*;
 
@@ -127,6 +128,22 @@ public class RegisterServerController {
 
 		// 清空注册表缓存
 		registryCache.invalidate();
+	}
+
+	/**
+	 * 集群间同步batch数据
+	 * @param batch
+	 */
+	public void replicateBatch(PeersReplicateBatch batch) {
+		for(AbstractRequest request : batch.getRequests()) {
+			if(request.getType().equals(AbstractRequest.REGISTER_REQUEST)) {
+				register((RegisterRequest) request);
+			} else if(request.getType().equals(AbstractRequest.CANCEL_REQUEST)) {
+				cancel((CancelRequest) request);
+			} else if(request.getType().equals(AbstractRequest.HEARTBEAT_REQUEST)) {
+				heartbeat((HeartbeatRequest) request);
+			}
+		}
 	}
 	
 }
